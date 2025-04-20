@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id       String    @id @default(uuid())
+  email    String    @unique
+  senha    String
+  nome     String
+  historicoMovimentacoes EstoqueHistorico[]
+}
+
+model Insumo {
+  id         String    @id @default(uuid())
+  nome       String    @unique
+  unidade    UnidadeMedida
+  quantidade Float
+  validade   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  receitas   ReceitaInsumo[]
+  historico  EstoqueHistorico[]
+
+  ListaCompra ListaCompra[]
+}
+
+enum UnidadeMedida {
+  KG
+  G
+  L
+  ML
+  UNIDADE
+}
+
+model Receita {
+  id          String           @id @default(uuid())
+  nome        String
+  descricao   String?
+  insumos     ReceitaInsumo[]
+  planejamentos ReceitaPlanejada[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model ReceitaInsumo {
+  id        String   @id @default(uuid())
+  receita   Receita  @relation(fields: [receitaId], references: [id])
+  receitaId String
+
+  insumo    Insumo   @relation(fields: [insumoId], references: [id])
+  insumoId  String
+
+  quantidade Float
+}
+
+model PlanejamentoProducao {
+  id          String               @id @default(uuid())
+  dataCriacao DateTime            @default(now())
+  receitas    ReceitaPlanejada[]
+  confirmado  Boolean             @default(false)
+  compras     ListaCompra[]
+}
+
+model ReceitaPlanejada {
+  id                  String               @id @default(uuid())
+  planejamento        PlanejamentoProducao @relation(fields: [planejamentoId], references: [id])
+  planejamentoId      String
+
+  receita             Receita              @relation(fields: [receitaId], references: [id])
+  receitaId           String
+
+  quantidadePlanejada Int
+}
+
+model ListaCompra {
+  id                 String                @id @default(uuid())
+  planejamento       PlanejamentoProducao @relation(fields: [planejamentoId], references: [id])
+  planejamentoId     String
+
+  insumo             Insumo               @relation(fields: [insumoId], references: [id])
+  insumoId           String
+
+  quantidadeFaltante Float
+}
+
+model EstoqueHistorico {
+  id         String   @id @default(uuid())
+  insumo     Insumo   @relation(fields: [insumoId], references: [id])
+  insumoId   String
+
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId  String
+
+  tipo       TipoMovimentacao
+  quantidade Float
+  dataHora   DateTime @default(now())
+}
+
+enum TipoMovimentacao {
+  ENTRADA
+  SAIDA
+}

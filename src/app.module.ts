@@ -7,9 +7,10 @@ import { ProducaoModule } from './producao/producao.module';
 import { ComprasModule } from './compras/compras.module';
 import { ValidadeModule } from './validade/validade.module';
 import { AuthModule } from './auth/auth.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [InsumosModule, ReceitasModule, ProducaoModule, ComprasModule, ValidadeModule, AuthModule],
+  imports: [InsumosModule, ReceitasModule, ProducaoModule, ComprasModule, ValidadeModule, AuthModule, PrismaModule],
   controllers: [AppController],
   providers: [AppService],
 })

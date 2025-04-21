@@ -14,26 +14,36 @@ datasource db {
 }
 
 model Usuario {
-  id       String    @id @default(uuid())
-  email    String    @unique
-  senha    String
-  nome     String
+  id    String @id @default(uuid())
+  email String @unique
+  senha String
+  nome  String
+
+  insumos                Insumo[]
+  receitas               Receita[]
+  listaCompra            ListaCompra[]
+  planejamentos          PlanejamentoProducao[]
   historicoMovimentacoes EstoqueHistorico[]
 }
 
 model Insumo {
-  id         String    @id @default(uuid())
-  nome       String    @unique
+  id         String        @id @default(uuid())
+  nome       String        @unique
   unidade    UnidadeMedida
   quantidade Float
   validade   DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 
-  receitas   ReceitaInsumo[]
-  historico  EstoqueHistorico[]
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+
+  receitas  ReceitaInsumo[]
+  historico EstoqueHistorico[]
 
   ListaCompra ListaCompra[]
+
+  @@unique([usuarioId])
 }
 
 enum UnidadeMedida {
@@ -45,67 +55,82 @@ enum UnidadeMedida {
 }
 
 model Receita {
-  id          String           @id @default(uuid())
-  nome        String
-  descricao   String?
-  insumos     ReceitaInsumo[]
+  id            String             @id @default(uuid())
+  nome          String
+  descricao     String?
+  insumos       ReceitaInsumo[]
   planejamentos ReceitaPlanejada[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+
+  @@unique([usuarioId])
 }
 
 model ReceitaInsumo {
-  id        String   @id @default(uuid())
-  receita   Receita  @relation(fields: [receitaId], references: [id])
+  id        String  @id @default(uuid())
+  receita   Receita @relation(fields: [receitaId], references: [id])
   receitaId String
 
-  insumo    Insumo   @relation(fields: [insumoId], references: [id])
-  insumoId  String
+  insumo   Insumo @relation(fields: [insumoId], references: [id])
+  insumoId String
 
   quantidade Float
 }
 
 model PlanejamentoProducao {
-  id          String               @id @default(uuid())
-  dataCriacao DateTime            @default(now())
+  id          String             @id @default(uuid())
+  dataCriacao DateTime           @default(now())
   receitas    ReceitaPlanejada[]
-  confirmado  Boolean             @default(false)
+  confirmado  Boolean            @default(false)
   compras     ListaCompra[]
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+
+  @@unique([usuarioId])
 }
 
 model ReceitaPlanejada {
-  id                  String               @id @default(uuid())
-  planejamento        PlanejamentoProducao @relation(fields: [planejamentoId], references: [id])
-  planejamentoId      String
+  id             String               @id @default(uuid())
+  planejamento   PlanejamentoProducao @relation(fields: [planejamentoId], references: [id])
+  planejamentoId String
 
-  receita             Receita              @relation(fields: [receitaId], references: [id])
-  receitaId           String
+  receita   Receita @relation(fields: [receitaId], references: [id])
+  receitaId String
 
   quantidadePlanejada Int
 }
 
 model ListaCompra {
-  id                 String                @id @default(uuid())
-  planejamento       PlanejamentoProducao @relation(fields: [planejamentoId], references: [id])
-  planejamentoId     String
+  id             String               @id @default(uuid())
+  planejamento   PlanejamentoProducao @relation(fields: [planejamentoId], references: [id])
+  planejamentoId String
 
-  insumo             Insumo               @relation(fields: [insumoId], references: [id])
-  insumoId           String
+  insumo   Insumo @relation(fields: [insumoId], references: [id])
+  insumoId String
 
   quantidadeFaltante Float
+
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String
+
+  @@unique([usuarioId])
 }
 
 model EstoqueHistorico {
-  id         String   @id @default(uuid())
-  insumo     Insumo   @relation(fields: [insumoId], references: [id])
-  insumoId   String
+  id       String @id @default(uuid())
+  insumo   Insumo @relation(fields: [insumoId], references: [id])
+  insumoId String
 
-  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
-  usuarioId  String
+  usuario   Usuario @relation(fields: [usuarioId], references: [id])
+  usuarioId String
 
   tipo       TipoMovimentacao
   quantidade Float
-  dataHora   DateTime @default(now())
+  dataHora   DateTime         @default(now())
 }
 
 enum TipoMovimentacao {

@@ -7,7 +7,4 @@ export class MovimentacaoDto {
 
   @IsNumber()
   quantidade: number;
-
-  @IsString()
-  usuarioId: string;
 }

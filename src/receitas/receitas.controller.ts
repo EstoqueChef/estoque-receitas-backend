@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { ReceitasService } from './receitas.service';
 import { CreateReceitaDto } from './dto/create-receita.dto';
 import { RequestWithUser } from 'src/auth/jwt.strategy';
+import { JwtAuthGuard } from 'src/auth/jwt.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('receitas')
 export class ReceitasController {
 
